@@ -3,6 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+// Register the asset encryption task
+val encryptAssetsTask = tasks.register<AssetEncryptionTask>("encryptAssets") {
+    inputDir.set(file("src/main/assets"))
+    outputDir.set(file("build/encrypted-assets"))
+}
+
 android {
     namespace = "com.coderx.installer"
     compileSdk = 36
@@ -18,6 +24,13 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+    
+    sourceSets {
+        getByName("main") {
+            // Replace original assets with encrypted ones
+            assets.srcDirs("build/encrypted-assets")
+        }
     }
 
     buildTypes {
@@ -35,6 +48,18 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+}
+
+// Make sure assets are encrypted before building
+tasks.named("preBuild") {
+    dependsOn(encryptAssetsTask)
+}
+
+// Also run before generating resources
+tasks.whenTaskAdded {
+    if (name.contains("generate") && name.contains("Resources")) {
+        dependsOn(encryptAssetsTask)
     }
 }
 

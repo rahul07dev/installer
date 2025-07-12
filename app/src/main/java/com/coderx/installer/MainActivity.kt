@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.coderx.installer.databinding.ActivityMainBinding
+import com.coderx.installer.utils.AssetEncryption
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -153,27 +154,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun extractAndValidateApk(): File {
         // Check if APK exists in assets
+        val encryptedApkName = "${ASSETS_APK_NAME}.enc"
         val assetFiles = try {
             assets.list("") ?: emptyArray()
         } catch (e: IOException) {
             throw IOException("Failed to list assets: ${e.message}")
         }
 
-        if (!assetFiles.contains(ASSETS_APK_NAME)) {
-            throw IOException("APK file $ASSETS_APK_NAME not found in assets")
-        }
-
-        // Verify asset file is readable
-        val assetSize = try {
-            assets.open(ASSETS_APK_NAME).use { input ->
-                input.available()
-            }
-        } catch (e: IOException) {
-            throw IOException("Failed to read APK from assets: ${e.message}")
-        }
-
-        if (assetSize <= 0) {
-            throw IOException("APK file $ASSETS_APK_NAME is empty")
+        if (!assetFiles.contains(encryptedApkName)) {
+            throw IOException("Encrypted APK file $encryptedApkName not found in assets")
         }
 
         // Extract APK to cache
@@ -183,7 +172,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         try {
-            assets.open(ASSETS_APK_NAME).use { input ->
+            // Read and decrypt the APK file
+            val decryptedData = AssetEncryption.readEncryptedAsset(this, ASSETS_APK_NAME)
+            
+            decryptedData.inputStream().use { input ->
                 FileOutputStream(file).use { output ->
                     input.copyTo(output)
                 }

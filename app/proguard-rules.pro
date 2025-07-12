@@ -19,3 +19,17 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep encryption classes
+-keep class com.coderx.installer.utils.AssetEncryption { *; }
+-keep class com.coderx.installer.utils.SecurityUtils { *; }
+
+# Keep crypto classes
+-keep class javax.crypto.** { *; }
+-keep class javax.crypto.spec.** { *; }
+
+# Obfuscate string constants (helps hide encryption keys)
+-adaptclassstrings
+-obfuscationdictionary proguard-dictionary.txt
+-classobfuscationdictionary proguard-dictionary.txt
+-packageobfuscationdictionary proguard-dictionary.txt
