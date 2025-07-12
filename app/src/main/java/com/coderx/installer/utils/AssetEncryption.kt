@@ -83,9 +83,16 @@ object AssetEncryption {
     fun readEncryptedAsset(context: Context, fileName: String): ByteArray {
         return try {
             val encryptedFileName = "${fileName}.enc"
+            Log.d(TAG, "Attempting to read encrypted asset: $encryptedFileName")
             val inputStream = context.assets.open(encryptedFileName)
             val encryptedData = inputStream.readBytes()
             inputStream.close()
+            
+            Log.d(TAG, "Read ${encryptedData.size} bytes of encrypted data")
+            
+            if (!validateEncryptedData(encryptedData)) {
+                throw IllegalArgumentException("Invalid encrypted data format")
+            }
             
             decrypt(encryptedData)
         } catch (e: Exception) {

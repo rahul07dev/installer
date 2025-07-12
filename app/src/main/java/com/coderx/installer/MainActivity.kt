@@ -161,6 +161,8 @@ class MainActivity : AppCompatActivity() {
             throw IOException("Failed to list assets: ${e.message}")
         }
 
+        Log.d(TAG, "Available assets: ${assetFiles.joinToString()}")
+        
         if (!assetFiles.contains(encryptedApkName)) {
             throw IOException("Encrypted APK file $encryptedApkName not found in assets")
         }
@@ -173,6 +175,7 @@ class MainActivity : AppCompatActivity() {
 
         try {
             // Read and decrypt the APK file
+            Log.d(TAG, "Reading encrypted asset: $ASSETS_APK_NAME")
             val decryptedData = AssetEncryption.readEncryptedAsset(this, ASSETS_APK_NAME)
             
             decryptedData.inputStream().use { input ->
@@ -180,8 +183,12 @@ class MainActivity : AppCompatActivity() {
                     input.copyTo(output)
                 }
             }
+            Log.d(TAG, "Successfully decrypted APK, size: ${file.length()} bytes")
         } catch (e: IOException) {
             throw IOException("Failed to extract APK to cache: ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Decryption failed: ${e.message}", e)
+            throw IOException("Failed to decrypt APK: ${e.message}")
         }
 
         // Validate extracted file

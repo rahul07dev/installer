@@ -27,11 +27,20 @@ abstract class AssetEncryptionTask : DefaultTask() {
         val inputDirectory = inputDir.get().asFile
         val outputDirectory = outputDir.get().asFile
         
+        println("AssetEncryptionTask: Starting encryption process")
+        println("Input directory: ${inputDirectory.absolutePath}")
+        println("Output directory: ${outputDirectory.absolutePath}")
+        
         // Clear output directory
         if (outputDirectory.exists()) {
             outputDirectory.deleteRecursively()
         }
         outputDirectory.mkdirs()
+        
+        if (!inputDirectory.exists()) {
+            println("Input directory does not exist, creating empty output directory")
+            return
+        }
         
         // Copy and encrypt all files
         inputDirectory.walkTopDown().forEach { file ->
@@ -47,17 +56,21 @@ abstract class AssetEncryptionTask : DefaultTask() {
                         println("Encrypting with AES-GCM: ${file.name}")
                         val encryptedData = encryptFileGCM(file)
                         outputFile.writeBytes(encryptedData)
+                        println("Successfully encrypted ${file.name} (${file.length()} -> ${encryptedData.size} bytes)")
                     } else {
                         println("Copying without encryption: ${file.name}")
                         file.copyTo(outputFile, overwrite = true)
                     }
                 } catch (e: Exception) {
                     println("Error processing ${file.name}: ${e.message}")
+                    e.printStackTrace()
                     // Copy original file if encryption fails
                     file.copyTo(File(outputDirectory, relativePath.path), overwrite = true)
                 }
             }
         }
+        
+        println("AssetEncryptionTask: Encryption process completed")
     }
     
     private fun shouldEncrypt(file: File): Boolean {

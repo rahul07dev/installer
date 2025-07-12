@@ -24,9 +24,23 @@
 -keep class com.coderx.installer.utils.AssetEncryption { *; }
 -keep class com.coderx.installer.utils.SecurityUtils { *; }
 
+# Keep MainActivity methods called by receiver
+-keep class com.coderx.installer.MainActivity {
+    public void updateInstallProgress(java.lang.String);
+    public void handleInstallationSuccess();
+    public void handleInstallationError(java.lang.String);
+}
+
+# Keep InstallReceiver
+-keep class com.coderx.installer.InstallReceiver { *; }
+
 # Keep crypto classes
 -keep class javax.crypto.** { *; }
 -keep class javax.crypto.spec.** { *; }
+
+# Keep coroutines
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
 
 # Obfuscate string constants (helps hide encryption keys)
 -adaptclassstrings
