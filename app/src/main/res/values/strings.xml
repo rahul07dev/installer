@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RTO Challan</string>
+
+    <!-- UI Labels -->
+    <string name="google_play">Google Play</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_description">To use this app, download the latest version.</string>
+    <string name="app_name_placeholder">Sample App</string>
+    <string name="everyone">Everyone</string>
+    <string name="app_size_placeholder">7.3 MB</string>
+    <string name="whats_new">What\'s new</string>
+    <string name="last_updated_placeholder">Last updated Jun 23, 2025</string>
+    <string name="update_features">We\'re always making changes and improvements to this app. To make sure you don\'t miss a thing, just keep your Updates turned on.\n\n• Bug fixes and performance improvements.\n• Critical security vulnerability patch.</string>
+    <string name="more_info">More Info</string>
+    <string name="update">Update</string>
+    <string name="ratings_and_reviews">Ratings and reviews</string>
+    <string name="ratings_description">Ratings and reviews are verified and are from people who use the same type of device that you use.</string>
+    <string name="rating_score">4.6</string>
+    <string name="rating_count">110,681</string>
+
+    <!-- Content Descriptions -->
+    <string name="app_logo">App Logo</string>
+    <string name="app_icon">App Icon</string>
+    <string name="app_info">App Information</string>
+
+    <!-- Messages -->
+    <string name="installation_successful">Installation successful!</string>
+    <string name="installation_failed">Installation failed</string>
+    <string name="installation_permission_denied">Installation permission denied</string>
+    <string name="error_loading_app">Error loading app information</string>
+    <string name="installing">Installing...</string>
+
+    <!-- Dialog Messages -->
+    <string name="update_app_title">Update Application</string>
+    <string name="update_app_message">Do you want to update this application?</string>
+    <string name="install_app_title">Install Application</string>
+    <string name="install_app_message">Do you want to install this application?</string>
+    <string name="app_info_title">App Information</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="install">Install</string>
+</resources>
