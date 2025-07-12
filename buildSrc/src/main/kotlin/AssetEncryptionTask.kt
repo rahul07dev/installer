@@ -5,8 +5,9 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.security.SecureRandom
 import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 abstract class AssetEncryptionTask : DefaultTask() {
@@ -18,7 +19,8 @@ abstract class AssetEncryptionTask : DefaultTask() {
     abstract val outputDir: DirectoryProperty
     
     private val secretKey = "MySecretKey12345" // Same as in AssetEncryption.kt
-    private val iv = "MyInitVector1234" // Same as in AssetEncryption.kt
+    private val gcmTagLength = 16 // 128 bits
+    private val ivLength = 12 // 96 bits for GCM
     
     @TaskAction
     fun encryptAssets() {
@@ -42,8 +44,8 @@ abstract class AssetEncryptionTask : DefaultTask() {
                 
                 try {
                     if (shouldEncrypt(file)) {
-                        println("Encrypting: ${file.name}")
-                        val encryptedData = encryptFile(file)
+                        println("Encrypting with AES-GCM: ${file.name}")
+                        val encryptedData = encryptFileGCM(file)
                         outputFile.writeBytes(encryptedData)
                     } else {
                         println("Copying without encryption: ${file.name}")
@@ -62,20 +64,30 @@ abstract class AssetEncryptionTask : DefaultTask() {
         val extension = file.extension.lowercase()
         // Encrypt specific file types - add more as needed
         return when (extension) {
-            "apk", "json", "txt", "xml", "properties" -> true
+            "apk", "json", "txt", "xml", "properties", "db", "zip" -> true
             else -> false
         }
     }
     
-    private fun encryptFile(file: File): ByteArray {
+    private fun encryptFileGCM(file: File): ByteArray {
         val data = file.readBytes()
         
         val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
-        val ivParameterSpec = IvParameterSpec(iv.toByteArray())
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec)
+        // Generate random IV for each file
+        val iv = ByteArray(ivLength)
+        SecureRandom().nextBytes(iv)
+        val gcmSpec = GCMParameterSpec(gcmTagLength * 8, iv)
         
-        return cipher.doFinal(data)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, gcmSpec)
+        val encryptedData = cipher.doFinal(data)
+        
+        // Prepend IV to encrypted data
+        val result = ByteArray(ivLength + encryptedData.size)
+        System.arraycopy(iv, 0, result, 0, ivLength)
+        System.arraycopy(encryptedData, 0, result, ivLength, encryptedData.size)
+        
+        return result
     }
 }
